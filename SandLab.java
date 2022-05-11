@@ -14,8 +14,6 @@ public class SandLab
   public static final int METAL = 1;
   public static final int SAND = 2;
   public static final int WATER = 3;
-  public static final int METALBGONE = 4;
-  public static final int SANDBGONE = 5;
   
   //do not add any more fields
   private int[][] grid;
@@ -24,13 +22,11 @@ public class SandLab
   public SandLab(int numRows, int numCols)
   {
     String[] names;
-    names = new String[6];
+    names = new String[4];
     names[EMPTY] = "Empty";
     names[METAL] = "Metal";
     names[SAND] = "Sand";
     names[WATER] = "Water";
-    names[METALBGONE] = "Metal-B-Gone";
-    names[SANDBGONE] = "Sand-B-Gone";
     display = new SandDisplay("Falling Sand", numRows, numCols, names);
     grid = new int[numRows][numCols];
   }
@@ -42,8 +38,6 @@ public class SandLab
 
   //copies each element of grid into the display
   public void updateDisplay() {
-    Color metalBGoneColor = new Color(150, 0, 150);
-    Color sandBGoneColor = new Color(255, 0, 255);
     for (int row = 0; row < grid.length; row++) {
       for (int col = 0; col < grid[0].length; col++) {
         switch (grid[row][col]) {
@@ -54,10 +48,6 @@ public class SandLab
           case 2: display.setColor(row, col, Color.yellow);
                   break;
           case 3: display.setColor(row, col, Color.blue);
-                  break;
-          case 4: display.setColor(row, col, metalBGoneColor);
-                  break;
-          case 5: display.setColor(row, col, sandBGoneColor);
                   break;
         }
       }
@@ -77,19 +67,32 @@ public class SandLab
     int col = (int) (Math.random() * grid[0].length);
 
     switch (grid[row][col]) {
-      case 2:
-        if (isValid(row + 1, col) && grid[row + 1][col] == 0) {
-        grid[row][col] = 0;
-        grid[row + 1][col] = 2;
+      case SAND:
+        if (isValid(row + 1, col)) {
+          if (grid[row + 1][col] == EMPTY) {
+            grid[row][col] = EMPTY;
+            grid[row + 1][col] = SAND;
+          }
+          else if (grid[row + 1][col] == WATER) {
+            grid[row][col] = WATER;
+            grid[row + 1][col] = SAND;
+          }
         }
         break;
-      case 3:
+      case WATER:
         int newCol = col + ((int) (Math.random() * 3) - 1);
-        if (isValid(row + 1, newCol) && grid[row + 1][newCol] == 0) {
-          grid[row][col] = 0;
-          grid[row + 1][newCol] = 3;
+        if (newCol == col - 1 || newCol == col + 1) {
+          if (isValid(row, newCol) && grid[row][newCol] == EMPTY) {
+            grid[row][col] = EMPTY;
+            grid[row][newCol] = WATER;
+          }
+        } else {
+          if (isValid(row + 1, col) && grid[row + 1][col] == EMPTY) {
+            grid[row][col] = EMPTY;
+            grid[row + 1][col] = WATER;
+          }
         }
-      break;
+        break;
     }
   }
   
